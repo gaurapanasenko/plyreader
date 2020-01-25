@@ -167,9 +167,21 @@ ply_reader_window_tab_create (GtkWidget* notebook, const gchar *basename)
   return box;
 }*/
 
+static void
+ply_reader_tab_close_clicked (PlyReaderTabLabel *tab_label,
+                              GtkNotebook       *notebook)
+{
+  GtkWidget *tab;
+  gint page_num;
+
+  tab = ply_reader_tab_label_get_tab (tab_label);
+  page_num = gtk_notebook_page_num (notebook, tab);
+  gtk_notebook_remove_page (notebook, page_num);
+}
+
 void
 ply_reader_window_open (PlyReaderWindow *win,
-                            GFile              *file)
+                        GFile              *file)
 {
   PlyReaderWindowPrivate *priv;
   gchar *basename;
@@ -184,6 +196,10 @@ ply_reader_window_open (PlyReaderWindow *win,
   scrolled = gtk_scrolled_window_new (NULL, NULL);
   plabel = ply_reader_tab_label_new(priv->notebook, scrolled, basename);
   label = GTK_WIDGET (plabel);
+  g_signal_connect (label,
+                    "close-clicked",
+                    G_CALLBACK (ply_reader_tab_close_clicked),
+                    GTK_NOTEBOOK (priv->notebook));
   gtk_widget_show (scrolled);
   gtk_widget_set_hexpand (scrolled, TRUE);
   gtk_widget_set_vexpand (scrolled, TRUE);
